@@ -3018,12 +3018,12 @@ bool GetFileSizeInBytes(size_t *filesize_out, std::string *err,
   }
 
   f.seekg(0, f.end);
-  size_t sz = static_cast<size_t>(f.tellg());
+  const auto sz = f.tellg();
 
   // std::cout << "sz = " << sz << "\n";
   f.seekg(0, f.beg);
 
-  if (int64_t(sz) < 0) {
+  if (sz < 0) {
     if (err) {
       (*err) += "Invalid file size : " + filepath +
                 " (does the path point to a directory?)";
@@ -3041,7 +3041,7 @@ bool GetFileSizeInBytes(size_t *filesize_out, std::string *err,
     return false;
   }
 
-  (*filesize_out) = sz;
+  (*filesize_out) = static_cast<size_t>(sz);
   return true;
 #endif
 }
@@ -3113,12 +3113,12 @@ bool ReadWholeFile(std::vector<unsigned char> *out, std::string *err,
   }
 
   f.seekg(0, f.end);
-  size_t sz = static_cast<size_t>(f.tellg());
+  const auto sz = f.tellg();
 
   // std::cout << "sz = " << sz << "\n";
   f.seekg(0, f.beg);
 
-  if (int64_t(sz) < 0) {
+  if (sz < 0) {
     if (err) {
       (*err) += "Invalid file size : " + filepath +
                 " (does the path point to a directory?)";
@@ -5181,7 +5181,7 @@ static bool ParseScene(Scene *scene, std::string *err, const detail::json &o,
     auto const &audio_ext = scene->extensions["KHR_audio"];
     if (audio_ext.Has("emitters")) {
       auto emittersArr = audio_ext.Get("emitters");
-      for (size_t i = 0; i < emittersArr.ArrayLen(); ++i) {
+      for (int i = 0; i < emittersArr.ArrayLen(); ++i) {
         scene->audioEmitters.emplace_back(emittersArr.Get(i).GetNumberAsInt());
       }
     } else {
@@ -6149,7 +6149,7 @@ bool TinyGLTF::LoadFromString(Model *model, std::string *err, std::string *warn,
             model->accessors[size_t(primitive.indices)].bufferView;
         if (bufferView < 0) {
           // skip, bufferView could be null(-1) for certain extensions
-        } else if (size_t(bufferView) >= model->bufferViews.size()) { 
+        } else if (size_t(bufferView) >= model->bufferViews.size()) {
           if (err) {
             (*err) += "accessor[" + std::to_string(primitive.indices) +
                       "] invalid bufferView";
